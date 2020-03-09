@@ -1,3 +1,3 @@
 git secret reveal
-terraform plan $@
+terraform apply $@
 git secret hide -d

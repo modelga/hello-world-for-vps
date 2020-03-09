@@ -1,3 +1,3 @@
 git secret reveal
-terraform plan $@
+terraform state $@
 git secret hide -d
