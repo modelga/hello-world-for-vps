@@ -12,6 +12,13 @@ resource "tls_private_key" "scaleway_ssh_key" {
   rsa_bits    = 2048
 }
 
+output "private_key" {
+  value     = tls_private_key.scaleway_ssh_key.private_key_pem
+  sensitive = true
+}
+output "ip" {
+  value = scaleway_instance_ip.server_ip.address
+}
 resource "scaleway_account_ssh_key" "scw_ssh_key" {
   name       = "main-ssh-key"
   public_key = tls_private_key.scaleway_ssh_key.public_key_openssh
