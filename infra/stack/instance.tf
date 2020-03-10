@@ -1,23 +1,7 @@
-provider "scaleway" {
-  access_key      = var.SCW_ACCESS_KEY
-  secret_key      = var.SCW_SECRET_KEY
-  organization_id = var.SCW_ORGANIZATION_ID
-  zone            = "fr-par-1"
-  region          = "fr-par"
-}
-
 resource "tls_private_key" "scaleway_ssh_key" {
   algorithm   = "RSA"
   ecdsa_curve = "P256"
   rsa_bits    = 2048
-}
-
-output "private_key" {
-  value     = tls_private_key.scaleway_ssh_key.private_key_pem
-  sensitive = true
-}
-output "ip" {
-  value = scaleway_instance_ip.server_ip.address
 }
 resource "scaleway_account_ssh_key" "scw_ssh_key" {
   name       = "main-ssh-key"
@@ -28,14 +12,27 @@ resource "scaleway_instance_ip" "server_ip" {}
 
 
 resource "scaleway_instance_security_group" "allow_all" {
-  name = "Allow All"
+  name = "Allow All (${var.config.stage})"
+}
+
+resource "random_pet" "server_name" {
+  keepers = {
+    instance_type = var.config.vps_instance_type
+  }
+  prefix    = "vps-${var.config.stage}"
+  separator = "-"
+  length    = 2
 }
 
 resource "scaleway_instance_server" "vps_dev_server" {
-  name              = "vps-1-dev"
-  type              = "DEV1-S"
+  name              = random_pet.server_name.id
+  type              = var.config.vps_instance_type
   image             = "docker"
   security_group_id = scaleway_instance_security_group.allow_all.id
 
   ip_id = scaleway_instance_ip.server_ip.id
+}
+
+provider "random" {
+
 }
